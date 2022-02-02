@@ -4,19 +4,6 @@ import 'node.dart';
 
 class ValidationUtil {
   /**
-   * check if numeric
-   */
-  static bool _isNumeric(String data) {
-    bool exceptionFlag = true;
-    try {
-      double value = double.parse(data);
-    } catch (e) {
-      exceptionFlag = false;
-    }
-    return exceptionFlag;
-  }
-
-  /**
    * check if given value is natural number
    */
   static bool _nonNatural(String data) {
@@ -57,9 +44,7 @@ class ValidationUtil {
       if (data.isEmpty) {
         throw new EmptyStringException();
       }
-      if (!_isNumeric(data)) {
-        throw new NonNumericException();
-      }
+
       if (_nonNatural(data)) {
         throw new NonNaturalException();
       }
@@ -87,9 +72,7 @@ class ValidationUtil {
       if (node.isEmpty) {
         throw new EmptyStringException();
       }
-      if (!_isNumeric(node)) {
-        throw new NonNumericException();
-      }
+
       if (_nonNatural(node)) {
         throw new NonNaturalException();
       }
