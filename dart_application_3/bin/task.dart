@@ -1,44 +1,49 @@
 import 'dart:collection';
 import 'dart:io';
 
+import 'graph.dart';
+import 'interface_task.dart';
 import 'node.dart';
-import 'validation_util.dart';
 
-class Task {
+class Task implements InterfaceTask {
   /**
    * validate for given node
    * get parent list from given node 
    */
-  static List<int> getImmediateParents(Map<int, Node> nodeMap, int nodeId) {
+  Set<int> getImmediateParents(int nodeId) {
+    Graph graph = new Graph();
     print("Parents of ${nodeId} are:");
-    return nodeMap[nodeId]!.parentList;
+    return graph.nodeMap[nodeId]!.parentList;
   }
 
   /**
    * validate for given node
    * get children list from given node
    */
-  static List<int> getImmediateChildren(Map<int, Node> nodeMap, int nodeId) {
+  Set<int> getImmediateChildren(int nodeId) {
+    Graph graph = new Graph();
     print("children of ${nodeId} are:");
-    return nodeMap[nodeId]!.childrenList;
+    return graph.nodeMap[nodeId]!.childrenList;
   }
 
   /**
    * validate for given node
    * do bfs traversal on given node
    */
-  static List<int> getAncestors(Map<int, Node> nodeMap, int nodeId) {
+  Set<int> getAncestors(int nodeId) {
+    Graph graph = new Graph();
     print("ancestors of ${nodeId} are:");
-    return _searchAncestors(nodeMap, nodeId);
+    return _searchAncestors(nodeId);
   }
 
   /**
    * validate given node
    * do bfs traversal on given node
    */
-  static List<int> getDescendents(Map<int, Node> nodeMap, int nodeId) {
+  Set<int> getDescendents(int nodeId) {
+    Graph graph = new Graph();
     print("descendents of ${nodeId} are:");
-    return _searchDescendents(nodeMap, nodeId);
+    return _searchDescendents(nodeId);
   }
 
   /**
@@ -48,14 +53,14 @@ class Task {
    * from child node's parent list to remove dependency
    * 
    */
-  static bool deleteDependency(
-      Map<int, Node> nodeMap, int parentNode, int childNode) {
-    if (!_dependency(parentNode, childNode, nodeMap)) {
+  bool deleteDependency(int parentNode, int childNode) {
+    Graph graph = new Graph();
+    if (!_dependency(parentNode, childNode)) {
       print("dependency do not exist");
       return false;
     }
-    nodeMap[parentNode]!.childrenList.remove(childNode);
-    nodeMap[childNode]!.parentList.remove(parentNode);
+    graph.nodeMap[parentNode]!.childrenList.remove(childNode);
+    graph.nodeMap[childNode]!.parentList.remove(parentNode);
 
     print("dependency is deleted");
     return true;
@@ -66,14 +71,15 @@ class Task {
    * delete all dependencies
    * delete node
    */
-  static void deleteNode(Map<int, Node> nodeMap, int node) {
-    nodeMap[node]!.parentList.forEach((parent) {
-      nodeMap[parent]!.childrenList.remove(node);
+  void deleteNode(int node) {
+    Graph graph = new Graph();
+    graph.nodeMap[node]!.parentList.forEach((parent) {
+      graph.nodeMap[parent]!.childrenList.remove(node);
     });
-    nodeMap[node]!.childrenList.forEach((child) {
-      nodeMap[child]!.parentList.remove(node);
+    graph.nodeMap[node]!.childrenList.forEach((child) {
+      graph.nodeMap[child]!.parentList.remove(node);
     });
-    nodeMap.remove(node);
+    graph.nodeMap.remove(node);
     print("given node is deleted");
   }
 
@@ -82,20 +88,20 @@ class Task {
    * check if cycle exist
    * add dependency
    */
-  static bool addDependency(
-      Map<int, Node> nodeMap, int parentNode, int childNode) {
+  bool addDependency(int parentNode, int childNode) {
+    Graph graph = new Graph();
     /**
      *  check for cyclic dependency before adding
      *  check if child->parent exist then don't add the dependency else
      *  add parent->child
      * */
-    if (_checkPath(childNode, parentNode, nodeMap)) {
+    if (_checkPath(childNode, parentNode)) {
       print("This dependency can't be added because of cycle");
       return false;
     }
 
-    nodeMap[parentNode]!.childrenList.add(childNode);
-    nodeMap[childNode]!.parentList.add(parentNode);
+    graph.nodeMap[parentNode]!.childrenList.add(childNode);
+    graph.nodeMap[childNode]!.parentList.add(parentNode);
     print("dependnecy is added");
     return true;
   }
@@ -105,45 +111,47 @@ class Task {
    * validate node
    * add node
    */
-  static void addNode(Map<int, Node> nodeMap, int nodeId, String nodeName) {
-    List<int> childrenList = [];
-    List<int> parentList = [];
+  void addNode(int nodeId, String nodeName) {
+    Graph graph = new Graph();
+    Set<int> childrenList = {};
+    Set<int> parentList = {};
     Node newNode = new Node(
         nodeId: nodeId,
         nodeName: nodeName,
         childrenList: childrenList,
         parentList: parentList);
-    nodeMap[nodeId] = newNode;
+    graph.nodeMap[nodeId] = newNode;
   }
 
   /**
    * check if dependency exist
    */
-  static bool _dependency(
-      int parentNode, int childNode, Map<int, Node> nodeMap) {
-    bool exist = nodeMap[parentNode]!.childrenList.contains(childNode);
+  bool _dependency(int parentNode, int childNode) {
+    Graph graph = new Graph();
+    bool exist = graph.nodeMap[parentNode]!.childrenList.contains(childNode);
     return exist;
   }
 
   /**
    * bfs traversal for ancestors
    */
-  static List<int> _searchAncestors(Map<int, Node> nodeMap, int node) {
+  Set<int> _searchAncestors(int node) {
+    Graph graph = new Graph();
     Queue<int> nodeQueue = new Queue();
     nodeQueue.add(node);
-    nodeMap[node]!.visited = true;
-    List<int> ancestorList = [];
+    graph.nodeMap[node]!.visited = true;
+    Set<int> ancestorList = {};
     while (nodeQueue.isNotEmpty) {
       int nodeAncestor = nodeQueue.removeLast();
       if (nodeAncestor != node) ancestorList.add(nodeAncestor);
-      for (int link in nodeMap[nodeAncestor]!.parentList) {
-        if (!nodeMap[link]!.visited) {
-          nodeMap[link]!.visited = true;
+      for (int link in graph.nodeMap[nodeAncestor]!.parentList) {
+        if (!graph.nodeMap[link]!.visited) {
+          graph.nodeMap[link]!.visited = true;
           nodeQueue.add(link);
         }
       }
     }
-    nodeMap.forEach((node, value) {
+    graph.nodeMap.forEach((node, value) {
       value.visited = false;
     });
     return ancestorList;
@@ -152,60 +160,36 @@ class Task {
   /**
    * bfs traversal for descendents
    */
-  static List<int> _searchDescendents(Map<int, Node> nodeMap, int node) {
+  Set<int> _searchDescendents(int node) {
+    Graph graph = new Graph();
     Queue<int> nodeQueue = new Queue();
     nodeQueue.add(node);
-    nodeMap[node]!.visited = true;
-    List<int> descendentList = [];
+    graph.nodeMap[node]!.visited = true;
+    Set<int> descendentList = {};
     while (nodeQueue.isNotEmpty) {
       int nodeAncestor = nodeQueue.removeLast();
       if (nodeAncestor != node) descendentList.add(nodeAncestor);
-      for (int link in nodeMap[nodeAncestor]!.childrenList) {
-        if (!nodeMap[link]!.visited) {
-          nodeMap[link]!.visited = true;
+      for (int link in graph.nodeMap[nodeAncestor]!.childrenList) {
+        if (!graph.nodeMap[link]!.visited) {
+          graph.nodeMap[link]!.visited = true;
           nodeQueue.add(link);
         }
       }
     }
-    nodeMap.forEach((node, value) {
+    graph.nodeMap.forEach((node, value) {
       value.visited = false;
     });
     return descendentList;
   }
 
   /**
-   * bfs traversal to check path from child->parent
+   * check path from child->parent
+   * get ancestor list of parent if it contains child then there is path from 
+   * child->parent
    */
-  static bool _checkPath(
-      int childNode, int parentNode, Map<int, Node> nodeMap) {
-    Queue<int> nodeQueue = new Queue();
-    nodeQueue.add(childNode);
-    nodeMap[childNode]!.visited = true;
-    while (nodeQueue.isNotEmpty) {
-      int nodeAncestor = nodeQueue.removeLast();
-      for (int link in nodeMap[nodeAncestor]!.childrenList) {
-        if (link == parentNode) return true;
-        if (!nodeMap[link]!.visited) {
-          nodeMap[link]!.visited = true;
-          nodeQueue.add(link);
-        }
-      }
-    }
-    nodeMap.forEach((node, value) {
-      value.visited = false;
-    });
+  bool _checkPath(int childNode, int parentNode) {
+    Set<int> parentAncestors = _searchAncestors(parentNode);
+    if (parentAncestors.contains(childNode)) return true;
     return false;
-  }
-
-  // display list of nodes required
-  static void displayList(List<int> nodeList) {
-    if (nodeList.isEmpty) {
-      print("no elements in this list");
-      return;
-    }
-    for (int node in nodeList) {
-      stdout.write(" ${node} ,");
-    }
-    print("\n");
   }
 }

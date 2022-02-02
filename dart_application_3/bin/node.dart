@@ -9,8 +9,8 @@ class Node {
   late String nodeName;
   bool visited;
 
-  List<int> childrenList;
-  List<int> parentList;
+  Set<int> childrenList;
+  Set<int> parentList;
   Node(
       {required this.nodeId,
       required this.nodeName,

@@ -1,43 +1,50 @@
 import 'dart:io';
 
 import 'constants.dart';
-import 'node.dart';
+import 'graph.dart';
 import 'task.dart';
+import 'utilities.dart';
 import 'validation_util.dart';
 
 class FamilyTree {
   static void startApp() {
-    // enter a choice to perform task
-    Map<int, Node> nodeMap = new Map();
-    String choiceString;
-    int choice;
+    Graph graph = new Graph();
+    Task task = new Task();
+    // enter a choice to perform graph
+    // Map<int, Node> graph.nodeMap = new Map();
+    String choice;
     do {
       do {
-        print("Enter a choice to perform actions\n" +
-            "1: get immediate parents\n" +
-            "2: get immediate children\n" +
-            "3. get ancestors\n" +
-            "4. get descendents\n" +
-            "5. delete dependency\n" +
-            "6. delete node\n" +
-            "7. add dependency\n" +
-            "8. add node\n" +
-            "9. exit app\n");
-        choiceString = stdin.readLineSync()!;
+        print('''
+Enter a choice to perform actions
+1: get immediate parents
+2: get immediate children
+3. get ancestors
+4. get descendents
+5. delete dependency
+6. delete node
+7. add dependency
+8. add node
+9. exit app''');
+        choice = stdin.readLineSync()!;
       } while (ValidationUtil.validateOption(
-          choiceString, Constants.RANGE_BEGIN, Constants.RANGE_END));
-      choice = int.parse(choiceString);
-      List<int> nodeList;
-      switch (choice) {
+          choice, Constants.RANGE_BEGIN, Constants.RANGE_END));
+
+      Set<int> nodeList;
+      switch (int.parse(choice)) {
         /**
          * Returns immediate parents list
          */
         case 1:
-          if (nodeMap.isNotEmpty) {
-            int nodeId = _inputNodes(nodeMap, 1)[0];
+          if (graph.nodeMap.isNotEmpty) {
+            int nodeId = Utility.inputNodes(1)[0];
             // TESTING
-            nodeList = Task.getImmediateParents(nodeMap, nodeId);
-            Task.displayList(nodeList);
+            if (nodeExist(nodeId)) {
+              nodeList = task.getImmediateParents(nodeId);
+              Utility.displayList(nodeList);
+            } else {
+              print("node not exist");
+            }
           } else
             print("add node to perform this operation");
           break;
@@ -45,11 +52,15 @@ class FamilyTree {
          * Returns immediate children list
          */
         case 2:
-          if (nodeMap.isNotEmpty) {
-            int nodeId = _inputNodes(nodeMap, 1)[0];
+          if (graph.nodeMap.isNotEmpty) {
+            int nodeId = Utility.inputNodes(1)[0];
             // TESTING
-            nodeList = Task.getImmediateChildren(nodeMap, nodeId);
-            Task.displayList(nodeList);
+            if (nodeExist(nodeId)) {
+              nodeList = task.getImmediateChildren(nodeId);
+              Utility.displayList(nodeList);
+            } else {
+              print("node not exist");
+            }
           } else
             print("add node to perform this operation");
           break;
@@ -57,11 +68,15 @@ class FamilyTree {
          * Returns ancestors list
          */
         case 3:
-          if (nodeMap.isNotEmpty) {
-            int nodeId = _inputNodes(nodeMap, 1)[0];
+          if (graph.nodeMap.isNotEmpty) {
+            int nodeId = Utility.inputNodes(1)[0];
             // TESTING
-            nodeList = Task.getAncestors(nodeMap, nodeId);
-            Task.displayList(nodeList);
+            if (nodeExist(nodeId)) {
+              nodeList = task.getAncestors(nodeId);
+              Utility.displayList(nodeList);
+            } else {
+              print("node not exist");
+            }
           } else
             print("add node to perform this operation");
           break;
@@ -69,11 +84,15 @@ class FamilyTree {
          * Returns descendentslist
          */
         case 4:
-          if (nodeMap.isNotEmpty) {
-            int nodeId = _inputNodes(nodeMap, 1)[0];
+          if (graph.nodeMap.isNotEmpty) {
+            int nodeId = Utility.inputNodes(1)[0];
             // TESTING
-            nodeList = Task.getDescendents(nodeMap, nodeId);
-            Task.displayList(nodeList);
+            if (nodeExist(nodeId)) {
+              nodeList = task.getDescendents(nodeId);
+              Utility.displayList(nodeList);
+            } else {
+              print("node not exist");
+            }
           } else
             print("add node to perform this operation");
           break;
@@ -82,11 +101,13 @@ class FamilyTree {
          *  and is deleted else returns false
          */
         case 5:
-          if (nodeMap.isNotEmpty) {
-            int parentNode = _inputNodes(nodeMap, 1)[0];
-            int childNode = _inputNodes(nodeMap, 1)[1];
-            bool deleted =
-                Task.deleteDependency(nodeMap, parentNode, childNode);
+          if (graph.nodeMap.isNotEmpty) {
+            List<int> nodes = Utility.inputNodes(2);
+            if (nodeExist(nodes[0]) && nodeExist(nodes[1])) {
+              bool deleted = task.deleteDependency(nodes[0], nodes[1]);
+            } else {
+              print("node not exist");
+            }
           } else
             print("add node to perform this operation");
           break;
@@ -95,9 +116,13 @@ class FamilyTree {
          *  
          */
         case 6:
-          if (nodeMap.isNotEmpty) {
-            int nodeId = _inputNodes(nodeMap, 1)[0];
-            Task.deleteNode(nodeMap, nodeId);
+          if (graph.nodeMap.isNotEmpty) {
+            int nodeId = Utility.inputNodes(1)[0];
+            if (nodeExist(nodeId))
+              task.deleteNode(nodeId);
+            else {
+              print("node not exist");
+            }
           } else
             print("add node to perform this operation");
           break;
@@ -106,10 +131,13 @@ class FamilyTree {
          *  and is added else returns false
          */
         case 7:
-          if (nodeMap.isNotEmpty) {
-            int parentNode = _inputNodes(nodeMap, 1)[0];
-            int childNode = _inputNodes(nodeMap, 1)[1];
-            bool added = Task.addDependency(nodeMap, parentNode, childNode);
+          if (graph.nodeMap.isNotEmpty) {
+            List<int> nodes = Utility.inputNodes(2);
+            if (nodeExist(nodes[0]) && nodeExist(nodes[1])) {
+              bool added = task.addDependency(nodes[0], nodes[1]);
+            } else {
+              print("node not exist");
+            }
           } else
             print("add node to perform this operation");
           break;
@@ -123,14 +151,18 @@ class FamilyTree {
             do {
               print("Enter the node Id");
               nodeIdString = stdin.readLineSync()!;
-            } while (ValidationUtil.validateNodeAdd(nodeIdString, nodeMap));
+            } while (ValidationUtil.validateNode(nodeIdString));
 
             nodeId = int.parse(nodeIdString);
-            do {
-              print("Enter the node name");
-              nodeName = stdin.readLineSync()!;
-            } while (ValidationUtil.validateName(nodeName));
-            Task.addNode(nodeMap, nodeId, nodeName);
+            if (!nodeExist(nodeId)) {
+              do {
+                print("Enter the node name");
+                nodeName = stdin.readLineSync()!;
+              } while (ValidationUtil.validateName(nodeName));
+              task.addNode(nodeId, nodeName);
+            } else {
+              print("node already exist");
+            }
           }
 
           break;
@@ -143,37 +175,15 @@ class FamilyTree {
         default:
           print("enter valid option");
       }
-    } while (choice != Constants.END);
+    } while (choice != Constants.RANGE_END.toString());
   }
 
-  /**
-         * takes input of 1 node or 2 nodes based on parameter
-         */
-  static List<int> _inputNodes(Map<int, Node> nodeMap, int nodes) {
-    if (nodes == 1) {
-      String nodeIdString;
-      List<int> childrenList;
-      int nodeId;
-      do {
-        print("Enter node id to get immediate children");
-        nodeIdString = stdin.readLineSync()!;
-      } while (ValidationUtil.validateNode(nodeIdString, nodeMap));
-      nodeId = int.parse(nodeIdString);
-      return [nodeId];
-    } else if (nodes == 2) {
-      String parentNodeString, childNodeString;
-      int parentNode, childNode;
-      do {
-        print("Enter parent and child node to create dependency");
-        parentNodeString = stdin.readLineSync()!;
-        childNodeString = stdin.readLineSync()!;
-      } while (ValidationUtil.validateNode(parentNodeString, nodeMap) &&
-          ValidationUtil.validateNode(childNodeString, nodeMap));
+  static bool nodeExist(int nodeId) {
+    Graph graph = new Graph();
+    if (graph.nodeMap.containsKey(nodeId)) {
+      return true;
+    }
 
-      parentNode = int.parse(parentNodeString);
-      childNode = int.parse(childNodeString);
-      return [parentNode, childNode];
-    } else
-      return [];
+    return false;
   }
 }

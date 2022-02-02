@@ -1,9 +1,21 @@
-import 'dart:io';
-
 import 'exception.dart';
+
 import 'node.dart';
 
 class ValidationUtil {
+  /**
+   * check if numeric
+   */
+  static bool _isNumeric(String data) {
+    bool exceptionFlag = true;
+    try {
+      double value = double.parse(data);
+    } catch (e) {
+      exceptionFlag = false;
+    }
+    return exceptionFlag;
+  }
+
   /**
    * check if given value is natural number
    */
@@ -12,8 +24,6 @@ class ValidationUtil {
     try {
       int value = int.parse(data);
       if (value <= 0) throw NonNaturalException();
-    } on NonNaturalException {
-      exceptionFlag = true;
     } catch (e) {
       exceptionFlag = true;
     }
@@ -33,10 +43,6 @@ class ValidationUtil {
   /**
    * check if given node exist
    */
-  static bool _nodeExist(int nodeId, Map<int, Node> nodeMap) {
-    if (nodeMap.containsKey(nodeId)) return true;
-    return false;
-  }
 
   /**
    * validate option
@@ -50,6 +56,9 @@ class ValidationUtil {
     try {
       if (data.isEmpty) {
         throw new EmptyStringException();
+      }
+      if (!_isNumeric(data)) {
+        throw new NonNumericException();
       }
       if (_nonNatural(data)) {
         throw new NonNaturalException();
@@ -72,54 +81,17 @@ class ValidationUtil {
    * 2. Data should be a natural number
    * 3. Node should already exist
    */
-  static bool validateNode(String node, Map<int, Node> nodeMap) {
+  static bool validateNode(String node) {
     bool exceptionFlag = false;
     try {
       if (node.isEmpty) {
         throw new EmptyStringException();
       }
-      if (_nonNatural(node)) {
-        throw new NonNaturalException();
-      }
-      if (!_nodeExist(int.parse(node), nodeMap)) {
-        print("available nodes are:");
-        for (int nodeId in nodeMap.keys) {
-          stdout.write("${nodeId} , ");
-        }
-        stdout.write("\n");
-        throw new NodeNotExistException();
-      }
-    } on FamilyTreeException catch (exception, stackTrace) {
-      exceptionFlag = true;
-      print(exception.toString());
-      print(stackTrace);
-    }
-    return exceptionFlag;
-  }
-
-  /**
-   * validate node addition
-   * criteria:
-   * 1. Data should not be empty
-   * 2. Data should be a natural number
-   * 3. Node should not already exist
-   */
-  static bool validateNodeAdd(String node, Map<int, Node> nodeMap) {
-    bool exceptionFlag = false;
-    try {
-      if (node.isEmpty) {
-        throw new EmptyStringException();
+      if (!_isNumeric(node)) {
+        throw new NonNumericException();
       }
       if (_nonNatural(node)) {
         throw new NonNaturalException();
-      }
-      if (_nodeExist(int.parse(node), nodeMap)) {
-        print("available nodes are:");
-        for (int nodeId in nodeMap.keys) {
-          stdout.write("${nodeId} , ");
-        }
-        stdout.write("\n");
-        throw new NodeAlreadyExistException();
       }
     } on FamilyTreeException catch (exception, stackTrace) {
       exceptionFlag = true;
