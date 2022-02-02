@@ -10,6 +10,7 @@ class Task implements InterfaceTask {
    * validate for given node
    * get parent list from given node 
    */
+  @override
   Set<int> getImmediateParents(int nodeId) {
     Graph graph = new Graph();
     print("Parents of ${nodeId} are:");
@@ -20,6 +21,7 @@ class Task implements InterfaceTask {
    * validate for given node
    * get children list from given node
    */
+  @override
   Set<int> getImmediateChildren(int nodeId) {
     Graph graph = new Graph();
     print("children of ${nodeId} are:");
@@ -30,6 +32,7 @@ class Task implements InterfaceTask {
    * validate for given node
    * do bfs traversal on given node
    */
+  @override
   Set<int> getAncestors(int nodeId) {
     Graph graph = new Graph();
     print("ancestors of ${nodeId} are:");
@@ -40,6 +43,7 @@ class Task implements InterfaceTask {
    * validate given node
    * do bfs traversal on given node
    */
+  @override
   Set<int> getDescendents(int nodeId) {
     Graph graph = new Graph();
     print("descendents of ${nodeId} are:");
@@ -53,6 +57,7 @@ class Task implements InterfaceTask {
    * from child node's parent list to remove dependency
    * 
    */
+  @override
   bool deleteDependency(int parentNode, int childNode) {
     Graph graph = new Graph();
     if (!_dependency(parentNode, childNode)) {
@@ -71,6 +76,7 @@ class Task implements InterfaceTask {
    * delete all dependencies
    * delete node
    */
+  @override
   void deleteNode(int node) {
     Graph graph = new Graph();
     graph.nodeMap[node]!.parentList.forEach((parent) {
@@ -88,6 +94,7 @@ class Task implements InterfaceTask {
    * check if cycle exist
    * add dependency
    */
+  @override
   bool addDependency(int parentNode, int childNode) {
     Graph graph = new Graph();
     /**
@@ -111,6 +118,7 @@ class Task implements InterfaceTask {
    * validate node
    * add node
    */
+  @override
   void addNode(int nodeId, String nodeName) {
     Graph graph = new Graph();
     Set<int> childrenList = {};
