@@ -8,8 +8,8 @@ import 'validation_util.dart';
 
 class FamilyTree {
   static void startApp() {
-    Graph graph = new Graph();
-    Task task = new Task();
+    Graph graph = Graph.instance;
+    Task task = Task();
     // enter a choice to perform graph
     // Map<int, Node> graph.nodeMap = new Map();
     String choice;
@@ -45,8 +45,9 @@ Enter a choice to perform actions
             } else {
               print("node not exist");
             }
-          } else
+          } else {
             print("add node to perform this operation");
+          }
           break;
         /**
          * Returns immediate children list
@@ -61,8 +62,9 @@ Enter a choice to perform actions
             } else {
               print("node not exist");
             }
-          } else
+          } else {
             print("add node to perform this operation");
+          }
           break;
         /**
          * Returns ancestors list
@@ -77,8 +79,9 @@ Enter a choice to perform actions
             } else {
               print("node not exist");
             }
-          } else
+          } else {
             print("add node to perform this operation");
+          }
           break;
         /**
          * Returns descendentslist
@@ -93,8 +96,9 @@ Enter a choice to perform actions
             } else {
               print("node not exist");
             }
-          } else
+          } else {
             print("add node to perform this operation");
+          }
           break;
         /**
          * deletes dependency and returns true if dependency existed
@@ -108,8 +112,9 @@ Enter a choice to perform actions
             } else {
               print("node not exist");
             }
-          } else
+          } else {
             print("add node to perform this operation");
+          }
           break;
         /**
          * deletes node 
@@ -118,13 +123,14 @@ Enter a choice to perform actions
         case 6:
           if (graph.nodeMap.isNotEmpty) {
             int nodeId = Utility.inputNodes(1)[0];
-            if (nodeExist(nodeId))
+            if (nodeExist(nodeId)) {
               task.deleteNode(nodeId);
-            else {
+            } else {
               print("node not exist");
             }
-          } else
+          } else {
             print("add node to perform this operation");
+          }
           break;
         /**
          * adds dependency and returns true if cycle not exist
@@ -138,8 +144,9 @@ Enter a choice to perform actions
             } else {
               print("node not exist");
             }
-          } else
+          } else {
             print("add node to perform this operation");
+          }
           break;
         /**
           * adds node 
@@ -179,8 +186,7 @@ Enter a choice to perform actions
   }
 
   static bool nodeExist(int nodeId) {
-    Graph graph = new Graph();
-    if (graph.nodeMap.containsKey(nodeId)) {
+    if (Graph.instance.nodeMap.containsKey(nodeId)) {
       return true;
     }
 

@@ -12,9 +12,8 @@ class Task implements InterfaceTask {
    */
   @override
   Set<int> getImmediateParents(int nodeId) {
-    Graph graph = new Graph();
     print("Parents of ${nodeId} are:");
-    return graph.nodeMap[nodeId]!.parentList;
+    return Graph.instance.nodeMap[nodeId]!.parentList;
   }
 
   /**
@@ -23,9 +22,8 @@ class Task implements InterfaceTask {
    */
   @override
   Set<int> getImmediateChildren(int nodeId) {
-    Graph graph = new Graph();
     print("children of ${nodeId} are:");
-    return graph.nodeMap[nodeId]!.childrenList;
+    return Graph.instance.nodeMap[nodeId]!.childrenList;
   }
 
   /**
@@ -34,7 +32,6 @@ class Task implements InterfaceTask {
    */
   @override
   Set<int> getAncestors(int nodeId) {
-    Graph graph = new Graph();
     print("ancestors of ${nodeId} are:");
     return _searchAncestors(nodeId);
   }
@@ -45,7 +42,6 @@ class Task implements InterfaceTask {
    */
   @override
   Set<int> getDescendents(int nodeId) {
-    Graph graph = new Graph();
     print("descendents of ${nodeId} are:");
     return _searchDescendents(nodeId);
   }
@@ -59,13 +55,12 @@ class Task implements InterfaceTask {
    */
   @override
   bool deleteDependency(int parentNode, int childNode) {
-    Graph graph = new Graph();
     if (!_dependency(parentNode, childNode)) {
       print("dependency do not exist");
       return false;
     }
-    graph.nodeMap[parentNode]!.childrenList.remove(childNode);
-    graph.nodeMap[childNode]!.parentList.remove(parentNode);
+    Graph.instance.nodeMap[parentNode]!.childrenList.remove(childNode);
+    Graph.instance.nodeMap[childNode]!.parentList.remove(parentNode);
 
     print("dependency is deleted");
     return true;
@@ -78,14 +73,13 @@ class Task implements InterfaceTask {
    */
   @override
   void deleteNode(int node) {
-    Graph graph = new Graph();
-    graph.nodeMap[node]!.parentList.forEach((parent) {
-      graph.nodeMap[parent]!.childrenList.remove(node);
+    Graph.instance.nodeMap[node]!.parentList.forEach((parent) {
+      Graph.instance.nodeMap[parent]!.childrenList.remove(node);
     });
-    graph.nodeMap[node]!.childrenList.forEach((child) {
-      graph.nodeMap[child]!.parentList.remove(node);
+    Graph.instance.nodeMap[node]!.childrenList.forEach((child) {
+      Graph.instance.nodeMap[child]!.parentList.remove(node);
     });
-    graph.nodeMap.remove(node);
+    Graph.instance.nodeMap.remove(node);
     print("given node is deleted");
   }
 
@@ -96,7 +90,6 @@ class Task implements InterfaceTask {
    */
   @override
   bool addDependency(int parentNode, int childNode) {
-    Graph graph = new Graph();
     /**
      *  check for cyclic dependency before adding
      *  check if child->parent exist then don't add the dependency else
@@ -107,8 +100,8 @@ class Task implements InterfaceTask {
       return false;
     }
 
-    graph.nodeMap[parentNode]!.childrenList.add(childNode);
-    graph.nodeMap[childNode]!.parentList.add(parentNode);
+    Graph.instance.nodeMap[parentNode]!.childrenList.add(childNode);
+    Graph.instance.nodeMap[childNode]!.parentList.add(parentNode);
     print("dependnecy is added");
     return true;
   }
@@ -120,7 +113,6 @@ class Task implements InterfaceTask {
    */
   @override
   void addNode(int nodeId, String nodeName) {
-    Graph graph = new Graph();
     Set<int> childrenList = {};
     Set<int> parentList = {};
     Node newNode = new Node(
@@ -128,15 +120,15 @@ class Task implements InterfaceTask {
         nodeName: nodeName,
         childrenList: childrenList,
         parentList: parentList);
-    graph.nodeMap[nodeId] = newNode;
+    Graph.instance.nodeMap[nodeId] = newNode;
   }
 
   /**
    * check if dependency exist
    */
   bool _dependency(int parentNode, int childNode) {
-    Graph graph = new Graph();
-    bool exist = graph.nodeMap[parentNode]!.childrenList.contains(childNode);
+    bool exist =
+        Graph.instance.nodeMap[parentNode]!.childrenList.contains(childNode);
     return exist;
   }
 
@@ -144,22 +136,21 @@ class Task implements InterfaceTask {
    * bfs traversal for ancestors
    */
   Set<int> _searchAncestors(int node) {
-    Graph graph = new Graph();
     Queue<int> nodeQueue = new Queue();
     nodeQueue.add(node);
-    graph.nodeMap[node]!.visited = true;
+    Graph.instance.nodeMap[node]!.visited = true;
     Set<int> ancestorList = {};
     while (nodeQueue.isNotEmpty) {
       int nodeAncestor = nodeQueue.removeLast();
       if (nodeAncestor != node) ancestorList.add(nodeAncestor);
-      for (int link in graph.nodeMap[nodeAncestor]!.parentList) {
-        if (!graph.nodeMap[link]!.visited) {
-          graph.nodeMap[link]!.visited = true;
+      for (int link in Graph.instance.nodeMap[nodeAncestor]!.parentList) {
+        if (!Graph.instance.nodeMap[link]!.visited) {
+          Graph.instance.nodeMap[link]!.visited = true;
           nodeQueue.add(link);
         }
       }
     }
-    graph.nodeMap.forEach((node, value) {
+    Graph.instance.nodeMap.forEach((node, value) {
       value.visited = false;
     });
     return ancestorList;
@@ -169,22 +160,21 @@ class Task implements InterfaceTask {
    * bfs traversal for descendents
    */
   Set<int> _searchDescendents(int node) {
-    Graph graph = new Graph();
     Queue<int> nodeQueue = new Queue();
     nodeQueue.add(node);
-    graph.nodeMap[node]!.visited = true;
+    Graph.instance.nodeMap[node]!.visited = true;
     Set<int> descendentList = {};
     while (nodeQueue.isNotEmpty) {
       int nodeAncestor = nodeQueue.removeLast();
       if (nodeAncestor != node) descendentList.add(nodeAncestor);
-      for (int link in graph.nodeMap[nodeAncestor]!.childrenList) {
-        if (!graph.nodeMap[link]!.visited) {
-          graph.nodeMap[link]!.visited = true;
+      for (int link in Graph.instance.nodeMap[nodeAncestor]!.childrenList) {
+        if (!Graph.instance.nodeMap[link]!.visited) {
+          Graph.instance.nodeMap[link]!.visited = true;
           nodeQueue.add(link);
         }
       }
     }
-    graph.nodeMap.forEach((node, value) {
+    Graph.instance.nodeMap.forEach((node, value) {
       value.visited = false;
     });
     return descendentList;

@@ -85,7 +85,7 @@ class ValidationUtil {
   }
 
   /**
-   * validate node 
+   * validate name
    * criteria:
    * 1. Data should not be empty
    */
